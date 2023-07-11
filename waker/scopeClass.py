@@ -53,7 +53,7 @@ class scopeData(object):
         if self.plan == 'V':
             self.CH1V,self.CH2V =  self.getVoltage(self.BCH1,self.CH1_FAC,self.CH1_VOL_OFF),self.getVoltage(self.BCH2,self.CH2_FAC,self.CH2_VOL_OFF)
         elif self.plan == 'H':
-            self.CH1V,self.CH2V =  self.getVoltage(self.BCH3,self.CH3_FAC,self.CH3_VOL_OFF),self.getVoltage(self.BCH4,self.CH4_FAC,self.CH4_VOL_OFF)
+            self.CH1V,self.CH2V =  self.getVoltage(self.BCH1,self.CH3_FAC,self.CH3_VOL_OFF),self.getVoltage(self.BCH2,self.CH4_FAC,self.CH4_VOL_OFF)
         else:
             print ('Wrong plan, either H or V')
             exit()
