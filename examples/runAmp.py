@@ -1,4 +1,4 @@
-from amplifierControl import *
+from waker.amplifierControl import *
 
 Amp1= RKAmplifier(1)
 

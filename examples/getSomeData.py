@@ -1,5 +1,5 @@
 import sys
-from IPMFIT import *
+from waker.IPMFIT import *
 import time 
 rootname = sys.argv[1]
 
