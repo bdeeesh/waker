@@ -22,24 +22,17 @@ class Control(object):
         '''
         self.instrAdd = instrAdd
         self.N = N
-
         self.Location = Location
         self.FileFormat = FileFormat
-
         self.File = str(FileName)
-
         self.FileLocation = self.Location+str(self.File)#+'"'
         print (self.FileLocation)
-
-
         try:
             self.instr = RsInstrument(self.instrAdd,"VisaTimeout=60000",reset=False)#,"OpcTimeout=60000","OpcWaitMode=OpcQuery")
             #self.instr.VisaTimeout = 60000
             #self.instr.OpcTimeout = 60000
             self.instr.instrument_status_checking=True
-
             if LOG: self.instr.logger.log_to_console = True; self.instr.logger.mode = LoggingMode.On
-
         except Exception as ex:
             print('Error initializing the instrument session:\n' + ex.args[0])
             exit()
@@ -47,6 +40,8 @@ class Control(object):
 
     def close(self):
         self.instr.close()
+
+
 
     def preP(self,dtype='INT,8'):
         #COMM = 'SYSTem:DISPlay:UPDate ON'
@@ -66,7 +61,9 @@ class Control(object):
         self.instr.write('*RST')
 
 
-    def setVscale(self,CHNum,SCALE,POS=0,OFF=0):
+    def set_vscale(self,CHNum,SCALE,POS=0,OFF=0):
+        # adding turn on CH
+        #
         CHAN = 'CHAN'+str(CHNum)
         COMM = CHAN+':POS '+str(POS)
         self.instr.write(COMM)
@@ -82,16 +79,16 @@ class Control(object):
 
         self.instr.query_opc()
 
-    def setHscale(self,SCALE,POS=0,OFF=0):
+    def set_hscale(self,SCALE,POS=0,OFF=0):
         COMM = 'TIM:SCAL '+str(SCALE)
         self.instr.write_str(COMM)
         
         self.instr.query_opc()
 
 
-    def acqSetting(self,multiCH=True,RES=100e-12):
-        COMM = 'EXPort:WAVeform:FASTexport ON'
-        self.instr.write_str(COMM)
+    def acq_setting(self,multiCH=True,RES=100e-12):
+        #COMM = 'EXPort:WAVeform:FASTexport ON'
+        #self.instr.write_str(COMM)
         if multiCH :
             COMM = 'EXPort:WAVeform:MULTichannel ON'
             self.instr.write_str(COMM)
@@ -115,23 +112,25 @@ class Control(object):
         self.instr.query_opc()
 
 
-    def runSingle(self):
+    def run_single(self):
         COMM = 'SING'
         self.instr.write_str(COMM)
         self.instr.query_opc(70000)
 
 
 
-    def deleteData(self,run):
+    def delete_data(self,run):
 
         CCOMM = 'MMEM:DEL '+self.FileLocation
 
         self.instr.write_str(COMM)
 
 
-    def exportSetting(self,run):
+    def export_setting(self,run,CH='C1W1'):
+        # adding option for the HOR
+        # if HOR, change CH to C3W1
 
-        COMM = 'EXPort:WAVeform:SOURce C1W1'
+        COMM = 'EXPort:WAVeform:SOURce '+CH
         self.instr.write_str(COMM)
         COMM = 'EXPort:WAVeform:SCOPe WFM'
         self.instr.write_str(COMM)
@@ -153,7 +152,7 @@ class Control(object):
 
 
 
-    def playHistory(self,Hi,Hf=0):
+    def play_history(self,Hi,Hf=0):
         Hi = (-1*Hi) +1
         COMM = 'CHANnel1:WAV1:HISTory:STATe ON'
         self.instr.query_opc()
@@ -170,11 +169,11 @@ class Control(object):
         self.instr.write_str(COMM)
         self.instr.query_opc(70000)
 
-    def waitForCommand(self):
+    def wait_for_command(self):
         self.instr.query_opc()
 
 
-    def copyFile(self,run):
+    def copy_file(self,run):
         self.instr.query_opc()
         RUN = str(run).zfill(3)
         self.FileLocation = self.FileLocation.strip('"')
@@ -193,7 +192,7 @@ class Control(object):
 
 
 
-    def copyFileName(self,fileName):
+    def copy_file_name(self,fileName):
 
         self.instr.query_opc()
         FileLocationName = self.Location.strip('"')
