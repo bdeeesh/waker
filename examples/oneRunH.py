@@ -1,6 +1,6 @@
 import numpy as np
 
-from PyScope import *
+from waker.PyScope import *
 
 import time 
 import sys
@@ -21,11 +21,11 @@ parser.add_argument('frames', type=int,nargs='?',default=2000,
 
 parser.add_argument('run', type=int,nargs='?',default=0,
                             help='run number')
-parser.add_argument('CH1_dV', type=float,nargs='?',default=10e-3,
-                            help='Voltag per Division for CH1')
+#parser.add_argument('CH1_dV', type=float,nargs='?',default=10e-3,
+#                            help='Voltag per Division for CH1')
 
-parser.add_argument('CH2_dV', type=float,nargs='?',default=100e-3,
-                            help='Voltag per Division for CH2')
+#parser.add_argument('CH2_dV', type=float,nargs='?',default=100e-3,
+#                            help='Voltag per Division for CH2')
 
 parser.add_argument('CH3_dV', type=float,nargs='?',default=10e-3,
                             help='Voltag per Division for CH1')
@@ -47,15 +47,15 @@ args = parser.parse_args()
 rootname =args.rootname
 FRAMES = args.frames
 m = args.run
-CH1_dV  =args.CH1_dV
-CH2_dV  =args.CH2_dV
+#CH1_dV  =args.CH1_dV
+#CH2_dV  =args.CH2_dV
 CH3_dV  =args.CH3_dV
 CH4_dV  =args.CH4_dV
 
 dt = args.dt
 RES = args.RES
 
-print (rootname,FRAMES,m,CH1_dV,CH2_dV)
+print (rootname,FRAMES,m,CH3_dV,CH4_dV)
 
 
 myScope = Control(rootname,FRAMES,LOG=1)
@@ -63,8 +63,8 @@ myScope = Control(rootname,FRAMES,LOG=1)
 
 myScope.preP(dtype='INT,8') # if the resolution is high, this will be ignored 
 
-myScope.set_vscale(1,CH1_dV,0,0)
-myScope.set_vscale(2,CH2_dV,0,0)
+#myScope.set_vscale(1,CH1_dV,0,0)
+#myScope.set_vscale(2,CH2_dV,0,0)
 myScope.set_vscale(3,CH3_dV,0,0)
 myScope.set_vscale(4,CH4_dV,0,0)
 
@@ -78,7 +78,7 @@ COMM = 'SYSTem:DISPlay:UPDate ON' #keep the display on
 myScope.instr.write(COMM)
 
 myScope.run_single()
-myScope.export_setting(m)
+myScope.export_setting(m,CH='C3W1')
 myScope.play_history(FRAMES)
 myScope.wait_for_command()
 myScope.copy_file(m)
