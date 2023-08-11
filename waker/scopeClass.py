@@ -290,7 +290,7 @@ class scopeData(object):
         """
         fig,ax = plt.subplots(3,2,dpi=100,figsize=(6,6),tight_layout=True)
         dt = 1.11e-5
-        self.chargeOffset = self.CH1VINT/(self.CH2VINT+offset)
+        self.chargeOffset = (-1*self.CH1VINT)/(self.CH2VINT+offset)
         [ax[0,0].plot(self.TIMEN,(self.CH2VINT[i]+offset)) for i in range(frame,frame+5)]
         [ax[1,0].plot(self.TIMEN,self.chargeOffset[i]) for i in range(frame,frame+5)]
 
@@ -301,10 +301,13 @@ class scopeData(object):
         ax[1,0].set_xlabel(r'Time (s)',fontsize=20)
         ax[0,0].set_ylabel(r'I (a.u.)',fontsize=20)
         ax[1,0].set_ylabel(r'y (a.u.)',fontsize=20)
+       
+
         if self.BeamData:
             ax[2,0].plot(self.BeamTime,self.Beam)
         else:
-            print ('no intesnity data')
+            ax[2,0].plot(self.ch2Beam())
+            print ('plotting ch2 beam')
         ax[2,0].axvline(x=ti+(frame*dt))
         ax[2,0].set_xlim(ti,ti+(self.nt)*dt)
         ax[2,0].set_ylabel(r'PPB ($\times 10^{12}$)',fontsize=20)
