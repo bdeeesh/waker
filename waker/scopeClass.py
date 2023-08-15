@@ -8,10 +8,13 @@ from os import path
 import matplotlib.pyplot as plt
 import matplotlib.animation
 
+from scipy.interpolate import interp1d
+
 
 print ('New version, updated June')
 print ('Adding H data analysis')
 print ('add ed number of channel')
+print ('adding new function to interpolate data on smaller time grid')
 class scopeData(object):
     
     def __init__(self,rootname,window=False,save=False,IFile='_beam',plan='V',num_of_chan=4):
@@ -72,9 +75,9 @@ class scopeData(object):
 
         self.CH1BGR = self.removeBaseLine(self.CH1V)
         #print (time()-t)
-        self.CH1VINT = self.IntegratedData(self.CH1BGR)
+        self.CH1VINT = self.IntegratedData(self.TIMEN,self.CH1BGR)
         #print (time()-t)
-        self.CH2VINT = self.IntegratedData(self.CH2V)
+        self.CH2VINT = self.IntegratedData(self.TIMEN,self.CH2V)
         
         self.POScenter = self.getPosition(self.CH1VINT,int(self.nt/2))
         self.POShead   = self.getPosition(self.CH1VINT,int(self.nt/3))
@@ -167,12 +170,12 @@ class scopeData(object):
             self.BeamData = False
             
 
-    def IntegratedData(self,CHVOLT):
+    def IntegratedData(self,TIME,CHVOLT):
             
         INTEGCH = np.cumsum(CHVOLT,axis=1)
         #polyfit to extract slope 
         #print (np.shape(TIMEN))
-        Tf = np.array([self.TIMEN[0],self.TIMEN[-1]])
+        Tf = np.array([TIME[0],TIME[-1]])
         CHF = INTEGCH[:, [0, -1]] # first values 
         #CHF = np.array([INTEGCH[0:,0],INTEGCH[0:,-1]])                                         
 
@@ -188,7 +191,7 @@ class scopeData(object):
                 print ('Error ')
         """
         poly1d_fn = [np.poly1d(coef[i]) for i in range(self.N)]
-        BCK = [poly1d_fn[i](self.TIMEN) for i in range(self.N)]
+        BCK = [poly1d_fn[i](TIME) for i in range(self.N)]
 
         #BGK = np.polynomial.polynomial.polyval(self.TIMEN, coef.T)
 
@@ -290,8 +293,8 @@ class scopeData(object):
         """
         fig,ax = plt.subplots(3,2,dpi=100,figsize=(6,6),tight_layout=True)
         dt = 1.11e-5
-        self.chargeOffset = (-1*self.CH1VINT)/(self.CH2VINT+offset)
-        [ax[0,0].plot(self.TIMEN,(self.CH2VINT[i]+offset)) for i in range(frame,frame+5)]
+        self.chargeOffset = (self.CH1VINT)/(-1*self.CH2VINT+offset)
+        [ax[0,0].plot(self.TIMEN,(-1*self.CH2VINT[i]+offset)) for i in range(frame,frame+5)]
         [ax[1,0].plot(self.TIMEN,self.chargeOffset[i]) for i in range(frame,frame+5)]
 
         position = self.getPosition(self.chargeOffset,int(self.nt/2))
@@ -306,7 +309,11 @@ class scopeData(object):
         if self.BeamData:
             ax[2,0].plot(self.BeamTime,self.Beam)
         else:
-            ax[2,0].plot(self.ch2Beam())
+            Turns = self.N*dt
+            tempTime = np.linspace(ti,ti+Turns,self.N)
+            print (len(tempTime),len(self.ch2Beam()))
+            ax[2,0].plot(tempTime,self.ch2Beam())
+
             print ('plotting ch2 beam')
         ax[2,0].axvline(x=ti+(frame*dt))
         ax[2,0].set_xlim(ti,ti+(self.nt)*dt)
@@ -334,8 +341,17 @@ class scopeData(object):
 
     getVoltage = lambda self,ADC,CH_N_FAC,CH_N_VOL_OFF: (ADC*CH_N_FAC) + CH_N_VOL_OFF # use convertsion factors for the voltage
 # example CH1VOLT,CH2VOLT = getVoltage(BINCH1,CH1_FAC,CH1_VOL_OFF),getVoltage(BINCH2,CH2_FAC,CH2_VOL_OFF)
+    def new_time(self,CH,new_t):
+        old_ch = interp1d(self.TIMEN,CH,axis=1)
+        new_ch = old_ch(new_t)
+        X = self.IntegratedData(new_t,new_ch)
+        return (X)
 
-    ch2Beam = lambda self: np.trapz(self.CH2VINT,axis=1)
+        
+    ch2Beam = lambda self: np.trapz(-1*self.CH2VINT,axis=1)
+
+    #new_time = lambda self,new_t,ch2: interp1d(new_t,ch2,axis=1)
+
 
 
 # usually the first 4 entries are useless:
