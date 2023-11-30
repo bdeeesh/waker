@@ -14,7 +14,6 @@ from scipy.interpolate import interp1d
 print ('New version, updated June')
 print ('Adding H data analysis')
 print ('add ed number of channel')
-print ('adding new function to interpolate data on smaller time grid')
 class scopeData(object):
     
     def __init__(self,rootname,window=False,save=False,IFile='_beam',plan='V',num_of_chan=4):
@@ -282,7 +281,7 @@ class scopeData(object):
         freq1 = self.tune[:int(self.N/2+1)]
         self.tuneFilter,self.PowSpecFiler = self.getTuneSpec(dn=1)[0][((freq1 > pi) & (freq1 < pf))],self.getTuneSpec(dn=1)[1][((freq1 > pi) & (freq1 < pf))]
 
-    def plotconsBeam(self,frame,ti=0.58,offset=0):
+    def plotconsBeam(self,frame,ti=0.58,offset=0,save=None):
         """
         ti = trigger time (set to 0.58)
         offset = voltage offset to A+B channel to avoid zeros 
@@ -333,6 +332,9 @@ class scopeData(object):
         ax[0,1].set_ylim(ax[2,1].get_ylim()[0],ax[2,1].get_ylim()[1])
         ax[1,1].set_ylim(ax[2,1].get_ylim()[0],ax[2,1].get_ylim()[1])
         ax[2,1].set_xlabel(r'Event time (s)',fontsize=20)
+        if save:
+            fig.savefig(str(save),format='pdf',dpi=100)
+
 
 
 

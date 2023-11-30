@@ -1,6 +1,6 @@
 import numpy as np
 import ipm as ipm
-#from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit
 import scope as sc
 import subprocess
 import os
